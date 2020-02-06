@@ -37,6 +37,7 @@ We also need a f matrix with the equations we’re solving for,
 ![](eq/f.png)
 
 Now we have everything that is needed for the algorithm,
+
 **Algorithm:**
 **Step 1 :**
 We’ll choose starting values for α and β, α(0) and β(0) using the method of moment estimators. 
@@ -72,3 +73,5 @@ Following are the results of the algorithm for different sized datasets ran mult
 The gumbel distribution was generated using α = 2.3 and β = 4.0
 
 ![](eq/results.png)
+
+[Direct link to the code.](src/MLE_gumbel.py)
