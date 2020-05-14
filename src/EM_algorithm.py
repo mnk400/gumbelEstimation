@@ -16,7 +16,7 @@ class EM(object):
     tolerance = 0.00000000001   #setting a tolerance for both newtonRaphson and EM
     def newtonRaphsonOptimizer(self, a, b, gumbel_dist, weight_matrix):
             '''
-            Newton Raphson Optimizer, modified to be able to multiply probabilities too.
+            Newton Raphson Optimizer, modified to be able to multiply probabilities 
             '''
             while True:
                 a_derivatedash = sum((-weight_matrix[i]/b**2) * math.exp(-(gumbel_dist[i] - a)/b) for i in range(len(gumbel_dist))) 

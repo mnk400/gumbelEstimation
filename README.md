@@ -1,44 +1,64 @@
-## Maximum Likelihood estimation of Gumbel Distribution
+---
+tags: [Machine Learning]
+title: Maximum Likelihood Estimation of Gumbel Distribution
+created: '2020-05-12T02:54:20.066Z'
+modified: '2020-05-14T05:09:37.232Z'
+---
 
-Probability density function of the Gumbel distribution is,
+# Maximum Likelihood Estimation of Gumbel Distribution
 
-![](eq/pdf.png)
+This is a write up to derive the maximum liklihood solution for estimation of a gumbel distribution.
 
-and we’re finding α ∈ R which is the location parameter and β > 0 which is the scale parameter.
+Let's start with the probability density function of the gumbel distribution, which is
 
-We can conclude the following quite easily,
+$$p(x)=\frac{1}{\beta}e^{\frac{x-\alpha}{\beta}}e^{-e^{\frac{x-\alpha}{\beta}}}$$
 
-![](eq/argmax.png)
+$$\text{where }\alpha \text{ and } \beta \text{ are parameters and }\alpha \in \mathbb{R}, \beta > 0$$
 
-and now calculating log-likelihood.
+Maximum liklihood solution can be written as, 
 
-![](eq/loglik.png)
+$$\mathrm{f}_{M L}=\underset{\alpha \in \mathbb{R}, \beta>0}{\operatorname{argmax}} \in \mathbb{R}, \beta>0(P(D | \alpha, \beta))$$
 
-Now finding derivatives, with respect to both α and β.
+where *D* represents the set of datapoints.
 
-![](eq/db.png)
+$$\mathrm{f}_{M L}=\underset{\alpha \in \mathbb{R}, \beta>0}{\operatorname{argmax}} \in \mathbb{R}, \beta>0(\prod_{i=1}^n P(x_i | \alpha, \beta))$$
 
-![](eq/da.png)
+where *x*<sub>*i*</sub> represents each datapoint.
 
-We ended up with two multivariate equations, which can not be directly equated to calculate for α and β. There are multiple ways to optimize two or more multivariate equations with, here I’ve chosen to use Newton Raphson method which is an iterative optimization algorithm.
+Now onto calculating the log-likelihood,
 
-To Optimize using Newton Raphson optimization, we have to calculate derivates, which in our case means double derivates of our initial equations.
+$$=\ln \left(\prod_{i=0}^{n} P\left(x_{i} | \alpha, \beta\right)\right)$$
 
-![](eq/dbb.png)
-![](eq/daa.png)
-![](eq/dab.png)
+$$=\sum_{i=0}^{n} \ln P\left(\left(x_{i} | \alpha, \beta\right)\right)$$
 
-Now onto finding the Hessian Matrix, if you do not understand how mutlivariate Newton Raphson work, I'd recommend the these [notes.](http://fourier.eng.hmc.edu/e176/lectures/NM/node21.html) The Hessian matrix in our case will be,
+$$=\sum_{i=0}^{n} \ln \left(\frac{1}{\beta} e^{-\frac{y_{i}-\alpha}{\beta}} e^{-e^{-\frac{j_{j}-a}{\beta}}}\right)$$
 
-![](eq/hessian.png)
+We end up with an equation with 2 variables in it, we'll be using [the Newton-Raphson method](http://www.sosmath.com/calculus/diff/der07/der07.html) to approximate the roots of the equation. I recommend reading through the link if you're familiar with the approximation method.
+
+Finding derivatives, with respect to both *α* and *β*.
+
+$$\frac{\partial f}{\partial \beta}=\sum_{i=0}^{n} \frac{x_{i}-n}{\beta^{2}}-\frac{n}{\beta}-\sum_{i=0}^{n} \frac{x_{i}-\alpha}{\beta} e^{-\frac{z_{i}-\alpha}{\beta}}$$
+
+$$\frac{\partial f}{\partial \alpha}=\frac{n}{\beta}-\frac{1}{\beta} \sum_{i=0}^{n} e^{-\frac{z_{i}-\alpha}{\beta}}$$
+
+For the Newron-Raphson approximation method, we require double derivatives, which we use to calculate the Hessian matrix.
+
+$$\frac{\partial^{2} f}{\partial \beta^{2}}=\frac{n}{\beta^{2}}-\frac{2}{\beta^{2}} \sum_{i=0}^{n}\left(x_{i}-\alpha\right)+\frac{2}{\beta^{3}} \sum_{i=0}^{n}\left(x_{i}-\alpha\right) e^{\frac{-\left(x_{i}-\alpha\right)}{\beta}}+\frac{2}{\beta^{4}} \sum_{i=0}^{n}\left(x_{i}-\alpha\right)^{2} e^{\frac{-\left(x_{j}-\alpha\right)}{\beta}}$$
+
+$$\frac{\partial^{2} f}{\partial \alpha^{2}}=\frac{-i}{\beta^{2}} \sum_{i=0}^{n} e^{-\frac{x_{i}-a}{\beta}}$$
+
+$$\frac{\partial^{2} f}{\partial \alpha \beta}=-\frac{n}{\beta^{2}}+\frac{1}{\beta^{2}} \sum_{i=0}^{n} e^{\frac{-\left(x_{i}-\alpha\right)}{\beta}}-\frac{1}{\beta^{3}} \sum_{i=0}^{n}\left(x_{i}-\alpha\right) e^{\frac{-\left(x_{i}-a\right)}{\beta}}$$
+
+The Hessian matrix can be calculated by, 
+
+$$H=\left[\begin{array}{ll}\frac{\partial^{2} f}{\partial \alpha^{2}} & \frac{\partial^{2} f}{\partial \alpha \beta} \\ \frac{\partial^{2} f}{\partial \alpha \beta} & \frac{\partial^{2} f}{\partial \beta^{2}}\end{array}\right]$$
 
 We also need a f matrix with the equations we’re solving for,
 
-![](eq/f.png)
+$$f=\left[\begin{array}{l}\frac{\partial f}{\partial \alpha} \\ \frac{\partial f}{\partial \beta}\end{array}\right]$$
 
-Now we have everything that is needed for the algorithm,
+Now we can follow the following algorithm to estimate the parameters.
 
-**Algorithm:**
 **Step 1 :**
 We’ll choose starting values for α and β, α(0) and β(0) using the method of moment estimators. 
 
@@ -57,20 +77,19 @@ Obtain inverse of the Hessian Matrix inv(H(α(0))(β(0))) and f(α(0))(β(0))
 
 Obtain new values of α and β, α(new) and β(new), from the Newton Raphson algorithm,
 
-![](eq/update.png)
+$$\left[\begin{array}{l}\alpha^{(n e w)} \\ \beta^{(n e w)}\end{array}\right]=\left[\begin{array}{l}\alpha^{(o l d)} \\ \beta^{(o l d)}\end{array}\right]-H^{-1}\left(\alpha^{(o l d)}, \beta^{(o l d)}\right) f\left(\alpha^{(o l d)}, \beta^{(o l d)}\right)$$
 
 **Step 5 :**
 
 Check to see if the differences between new and the old values are small enough and compare it by the set tolerance,
 
-![](eq/tol.png)
+$$\left[\left(\alpha^{(n e w)}-\alpha^{(o l d)}\right)^{2}+\left(\beta^{(n e w)}-\beta^{(o l d)}\right)^{2}<t\right]$$
 
 - if No, then return to Step(3), and calculate H−1(α(new))(β(new)) and f(α(new))(β(new)) and keep iterating.
 - if Yes, then stop.
 
-Following are the results of the algorithm for different sized datasets ran multiple times and averaged.
+Following are the results of the above algorithm for a gumbel destibution generated using α = 2.3 and β = 4.0 ran multiple times and averaged.
 
-The gumbel distribution was generated using α = 2.3 and β = 4.0
 
 ![](eq/results.png)
 
